@@ -1,4 +1,4 @@
-import sys, pygame
+import sys, pygame, time
 pygame.init()
  
 # Chain together some variables
@@ -7,8 +7,32 @@ size = width, height = 1024, 700
  
 # Create a velocity List variable to store
 # movement values for [X, Y] in one place
-velocity = [2, -2]
-left_hits = 0
+velocity = [5, -10]
+left_hits = 3
+stuff = True
+
+while stuff == True:
+    difficulty = raw_input("what difficulty do you want? Easy, medium, hard or ultimate? ")
+    if difficulty == "easy":
+        velocity = [2, -5]
+        stuff = False
+    elif difficulty == "medium":
+        velocity = [4, -8]
+        stuff = False
+    elif difficulty == "hard":
+        velocity = [6, -12]
+        stuff = False
+    elif difficulty == "ultimate":
+        velocity = [8, -20]
+        stuff = False
+        print("You only have one life...")
+        time.sleep(1)
+        left_hits = 1
+    else:
+        print("The difficulty " + difficulty + " is not valid")
+
+    
+
 
 # Create a Tuple to hold the red, green and blue
 # values to pruduce black (i.e. 0 for each)
@@ -22,21 +46,34 @@ pygame.display.set_caption("Bouncy Face")
  
 # Load the image we want to bounce
 # and store it in a variable called 'sprite'
-sprite = pygame.image.load("sprite.png")
+sprite = pygame.image.load("pongball.png")
 left_paddle=pygame.image.load("paddle.png")
 left_paddle_rect = left_paddle.get_rect()
 left_paddle_rect.top = 250
 # Get a bounding rectangle from the sprite
 spriterect = sprite.get_rect()
 
-font = pygame.font.Font(None, 36)
+font = pygame.font.SysFont("georgia", 36)
 
 # Loop forever
 while True:
     # Check the event list for a 'quit' event
     for event in pygame.event.get():
         if event.type == pygame.QUIT: sys.exit()
- 
+    # Check if we need to move the paddle
+    key = pygame.key.get_pressed()
+    if key[pygame.K_DOWN]:
+        if left_paddle_rect.bottom < 700:
+            left_paddle_rect.top= left_paddle_rect.top + 10
+
+    if key[pygame.K_UP]:
+        if left_paddle_rect.top > 0:
+                   left_paddle_rect.bottom = left_paddle_rect.bottom - 10
+                   
+    
+
+    
+    
     # Move the bounding rectangle according to the
     # current velocity
     spriterect = spriterect.move(velocity)
@@ -46,7 +83,7 @@ while True:
            velocity[0] = -velocity[0]
     elif spriterect.left < 0:
            velocity[0] = -velocity[0]
-           left_hits = left_hits + 1
+           left_hits = left_hits - 1
     if spriterect.right > width:
         # Yes - touching sides of screen so reverse X
         # velocity value
@@ -59,11 +96,19 @@ while True:
     # Draw everything
     # First clear the screen
     screen.fill(white)
-    # Blit the sprite to the current rectangle position
+    # Blit the sprite to t current rectangle position
+    text = font.render(str(left_hits), True,something,white)
+    textrect = text.get_rect()
+    screen.blit(text, textrect)
     screen.blit(sprite, spriterect)
     screen.blit(left_paddle, left_paddle_rect)
-    text = font.render(str(left_hits), True,white,black)
-    screen.blit(text, text.get_rect())
+    
+
     # Flip the screen we've just drawn to the front
     pygame.display.flip()
-# end of while loop - go round the loop again! 
+# end of while loop - go round the loop again!
+    if left_hits == 0:
+        pygame.quit()
+        sys.exit()
+        
+        
